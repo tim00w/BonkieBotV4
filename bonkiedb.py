@@ -21,7 +21,8 @@ class User(Base):
     #workouts = relationship("Workout", order_by=Workout.id, back_populates="users")
 
     def __repr__(self):
-        return "<User(name={}, code={}, start_datetime={})>".format(self.name, self.code, self.start_datetime)
+        return "<User(id={}, name={}, code={}, start_datetime={})>"\
+            .format(self.id, self.name, self.code, self.start_datetime)
 
 
 class Workout(Base):
@@ -30,6 +31,8 @@ class Workout(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)  # link
     datetime = Column(DateTime)
+    latitude = Column(Float)
+    longitude = Column(Float)
     comment = Column(String)
 
     user = relationship("User", back_populates="workouts")
