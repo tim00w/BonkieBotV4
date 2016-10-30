@@ -302,6 +302,85 @@ def format_multiple_sets(set_lst, superset_lst):
     return output2
 
 
+class exercise:
+
+    def __init__(self, name, units='kilogram'):
+        self.id = str(uuid.uuid4())
+        self.name = name
+        self.units = units
+        self.reps = []
+        self.load = []
+
+    def __repr__(self):
+        stress = ', '.join(['{} x {}'.format(r, l) for r, l in zip(self.reps, self.load)])
+        return '<{} ({})>'.format(self.name, stress)
+
+    def add_set(self, reps, load):
+        self.reps.append(reps)
+        self.load.append(load)
+
+    def add_multiple_sets(self, sets, reps, load):
+        for i in range(sets):
+            self.add_set(reps, load)
+
+    def undo_set(self):
+        self.reps.__delitem__(-1)
+        self.load.__delitem__(-1)
+
+    def export(self):
+        output = []
+        for r, l in zip(self.reps, self.load):
+            row = OrderedDict()
+            row['id'] = self.id
+            row['name'] = self.name
+            row['reps'] = r
+            row['load'] = l
+            row['units'] = self.units3
+            output.append(row)
+
+        return output
+
+class superset:
+
+    def __init__(self, names, delimiter=',', units='kilogram'):
+        self.id = str(uuid.uuid4())
+        self.order = [n.strip() for n in names.split(delimiter)]
+        self.exercises = [exercise(n) for n in self.order]
+        self.count = 0
+
+    def add_set(self, reps, load):
+        self.exercises[self.count].add_set(reps, load)
+        self.count += 1
+
+    def undo_set(self):
+        self.count -= 1  # ToDo: build in assertion that doesnt go negative
+        self.exercises[self.count].undo_set()
+
+
+class training:
+
+    def __init__(self):
+        self.id = str(uuid.uuid4())
+        self.date = None
+        self.location = None
+
+        self.exercises = []
+        self.supersets = []
+        self.order = []
+
+    def set_date(self, date):
+        self.date = date
+
+    def set_location(self, lat, lon):
+        self.location = (lat, lon)
+
+    def export(self):
+        output = []
+        return output
+
+
+
+
 if __name__ == '__main__':
     updater = Updater(TOKEN)
     dp = updater.dispatcher
