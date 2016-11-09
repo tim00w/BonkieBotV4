@@ -124,7 +124,8 @@ def start_set(bot, update):
                         text="Set '%s' started!"
                              "\nPlease provide the number of reps and the load of the exercise as follows:"
                              "\n (reps x load)"
-                             "\nor use /endset to end the exercise." % exercise)
+                             "\nYou can use /undo to remove the last entry "
+                             "or use /endset to end the set." % exercise)
         return IN_SET
     else:
         logger.info("user %s started a set without name. " % user.first_name)
@@ -141,8 +142,9 @@ def set_name(bot, update):
     bot.sendMessage(update.message.chat_id,
                     text="Set '%s' started!"
                          "\nplease provide the number of reps and the load of the exercise as follows:"
-                         "\n (reps x load) "
-                         "\nor use /endset to end the exercise." % exercise)
+                         "\n (reps x load)"
+                         "\nYou can use /undo to remove the last entry "
+                         "or use /endset to end the set." % exercise)
     return IN_SET
 
 
@@ -179,7 +181,8 @@ def start_superset(bot, update):
                         text="Superet '%s' started!"
                              "\nPlease provide the number of reps and the load of the exercise as follows:"
                              "\n (reps x load) "
-                             "\nor use /endset to end the exercise." % exercises)
+                             "\nYou can use /undo to remove the last entry "
+                             "or use /endset to end the set." % exercises)
         return IN_SUPERSET
     else:
         logger.info("user %s started a superset without name. " % user.first_name)
@@ -198,7 +201,8 @@ def superset_name(bot, update):
                     text="Superet '%s' started!"
                          "\nPlease provide the number of reps and the load of the exercise as follows:"
                          "\n (reps x load)"
-                         "\nor use /endset to end the exercise." % exercises)
+                         "\nYou can use /undo to remove the last entry "
+                         "or use /endset to end the current set." % exercises)
     return IN_SUPERSET
 
 
