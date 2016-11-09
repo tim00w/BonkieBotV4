@@ -8,21 +8,34 @@ engine = create_engine("sqlite:///:memory:")
 Base = declarative_base()
 
 
+class Role(Base):
+    __tablename__ = "roles"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    rights = Column(String, nullable=False)
+
+    def __repr__(self):
+        return "<Role(id={}, name={}, rights={})>".format(self.id, self.name, self.rights)
+
+
 class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
+    rights = Column(Integer, ForeignKey("roles.name"))
     code = Column(Integer, nullable=False)  # telegram code
     first_name = Column(String)
     last_name = Column(String)
     start_datetime = Column(DateTime, nullable=False)
 
+    role = relationship("Role", back_populates="users")
     #workouts = relationship("Workout", order_by=Workout.id, back_populates="users")
 
     def __repr__(self):
-        return "<User(id={}, name={}, code={}, start_datetime={})>"\
-            .format(self.id, self.name, self.code, self.start_datetime)
+        return "<User(id={}, name={}, rights={}, code={}, start_datetime={})>"\
+            .format(self.id, self.name, self.rights, self.code, self.start_datetime)
 
 
 class Workout(Base):
@@ -107,13 +120,18 @@ class Error(Base):
         return "<Error(id={}, log_id={}, message={})>"\
             .format(self.id, self.log_id, self.message)
 
-
+Role.users = relationship("User", back_populates="role")
 User.workouts = relationship("Workout", order_by=Workout.id, back_populates="user")
 User.sets = relationship("Set", order_by=Set.id, back_populates="user")
 User.exercises = relationship("Exercise", order_by=Exercise.id, back_populates="user")
 Workout.sets = relationship("Set", order_by=Set.id, back_populates="workout")
 Set.exercises = relationship("Exercise", order_by=Exercise.id, back_populates="set")
 Log.error = relationship("Error", back_populates="log")
+
+SYSADMIN = Role(name="sysadmin", rights=50)
+ADMIN = Role(name="admin", rights=40)
+TRAINER = Role(name="trainer", rights=20)
+USER = Role(name="user", rights=0)
 
 
 if __name__ == "__main__":
@@ -124,5 +142,14 @@ if __name__ == "__main__":
 
     session = Session()
 
+    session.add(SYSADMIN)
+    session.add(ADMIN)
+    session.add(TRAINER)
+    session.add(USER)
+    session.commit()
+
     Timo = User(name="Timo Lesterhuis", code=123456, start_datetime=datetime.now())
+    Timo.rights = "sysadmin"
+    session.add(Timo)
+    session.commit()
 

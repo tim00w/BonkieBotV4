@@ -21,7 +21,9 @@ TOKEN = '215428593:AAGl9krjx_0JxibgpyLzQfBYlgHI3PtAaxg'
 SUPERSET_NAME, IN_TRAINING, DATE, LOCATION, SET_NAME, SAVE, IN_SET, IN_SUPERSET = range(8)
 DATA = OrderedDict()
 
-get_args = lambda text: ' '.join(text.split()[1:])
+
+def get_args(text):
+    return ' '.join(text.split()[1:])
 
 
 def start(bot, update):
@@ -29,9 +31,11 @@ def start(bot, update):
     logger.info('User %s  started a conversation' % user.first_name)
     bot.sendMessage(update.message.chat_id,
                     text=
-                    "Hi!\nMy name is Bonkie."
+                    "Hi!"
+                    "\nMy name is Bonkie."
                     "\nI can help you keep track of your fitness progress!"
-                    "\nUse /starttraining to begin logging a training.")
+                    "\nUse /starttraining to begin logging a training."
+                    "\nYou can cancel the conversation at any time using /cancel.")
 
 
 def cancel(bot, update):
@@ -49,7 +53,8 @@ def error(bot, update, error):
 
 def start_training(bot, update):
     user = update.message.from_user
-    logger.info("User %s started a training session." % user.first_name)
+    logger.info("User %s started a training session."
+                "\nYou can cancel this at any time using /cancel." % user.first_name)
     DATA[update.message.chat_id] = OrderedDict()
     DATA[update.message.chat_id]['id'] = uuid.uuid4().__str__()
     DATA[update.message.chat_id]['name'] = user.first_name + ' ' + user.last_name
@@ -59,18 +64,18 @@ def start_training(bot, update):
     DATA[update.message.chat_id]['set'] = []
     DATA[update.message.chat_id]['superset'] = []
     bot.sendMessage(update.message.chat_id,
-                    text="What date whould you like to use?\n"\
-                         "Send /today to use today\'s date, or enter a custom date (dd-mm-yyyy)")
+                    text="What date whould you like to use?"
+                         "\nSend /today to use today's date, or enter a custom date (dd-mm-yyyy).")
     return DATE
 
 
 def use_today(bot, update):
     today = datetime.datetime.now().strftime("%d-%m-%Y")
-    logger.info("Using today\'s date (%s)" % today)
+    logger.info("Using today's date (%s)" % today)
     DATA[update.message.chat_id]['date'] = today
     bot.sendMessage(update.message.chat_id,
-                    text="Using today\'s date (%s)"
-                         "\n\nWould you like to save your training location? send your location or /skip" % today)
+                    text="Using today's date (%s)"
+                         "\n\nWould you like to save your training location? send your location or /skip." % today)
     return LOCATION
 
 
@@ -80,7 +85,7 @@ def use_date(bot, update):
     DATA[update.message.chat_id]['date'] = date
     bot.sendMessage(update.message.chat_id,
                     text="Using '%s' as date."
-                         "\n\nWould you like to save your training location? send your location or /skip" % date)
+                         "\n\nWould you like to save your training location? send your location or /skip." % date)
     return LOCATION
 
 
@@ -101,8 +106,9 @@ def skip_location(bot, update):
     logger.info("User %s did not send a location." % user.first_name)
     DATA[update.message.chat_id]['location'] = None
     bot.sendMessage(update.message.chat_id,
-                    text='Training started!'
-                         '\nUse /set to start a set, or /superset to start a superset.')
+                    text="Training started!"
+                         "\nUse /set to start a set, or /superset to start a superset."
+                         "\nYou can end the training using /endtraining.")
     return IN_TRAINING
 
 
@@ -116,13 +122,14 @@ def start_set(bot, update):
         DATA[update.message.chat_id]['order'].append(exercise)
         bot.sendMessage(update.message.chat_id,
                         text="Set '%s' started!"
-                             "\nplease provide the number of reps and the load of the exercise as follows:"
-                             "\n (reps x load) \nor use /endset to end the exercise"%  exercise)
+                             "\nPlease provide the number of reps and the load of the exercise as follows:"
+                             "\n (reps x load)"
+                             "\nor use /endset to end the exercise." % exercise)
         return IN_SET
     else:
         logger.info("user %s started a set without name. " % user.first_name)
         bot.sendMessage(update.message.chat_id,
-                        text="please provide the name of the exercise")
+                        text="please provide the name of the exercise:")
         return SET_NAME
 
 
@@ -134,7 +141,8 @@ def set_name(bot, update):
     bot.sendMessage(update.message.chat_id,
                     text="Set '%s' started!"
                          "\nplease provide the number of reps and the load of the exercise as follows:"
-                         "\n (reps x load) \nor use /endset to end the exercise" % exercise)
+                         "\n (reps x load) "
+                         "\nor use /endset to end the exercise." % exercise)
     return IN_SET
 
 
@@ -145,7 +153,8 @@ def handle_set(bot, update):
     logger.info("User %s sent '%s'" % (user.first_name, message))
     DATA[update.message.chat_id]['set'].append((reps, weight))
     bot.sendMessage(update.message.chat_id,
-                    text="reps: %s\nload: %s" % (reps, weight))
+                    text="reps: %s"
+                         "\nload: %s" % (reps, weight))
     return IN_SET
 
 
@@ -168,8 +177,9 @@ def start_superset(bot, update):
         DATA[update.message.chat_id]['order'].append(exercises)
         bot.sendMessage(update.message.chat_id,
                         text="Superet '%s' started!"
-                             "\nplease provide the number of reps and the load of the exercise as follows:"
-                             "\n (reps x load) \nor use /endset to end the exercise"%  exercises)
+                             "\nPlease provide the number of reps and the load of the exercise as follows:"
+                             "\n (reps x load) "
+                             "\nor use /endset to end the exercise." % exercises)
         return IN_SUPERSET
     else:
         logger.info("user %s started a superset without name. " % user.first_name)
@@ -186,8 +196,9 @@ def superset_name(bot, update):
     DATA[update.message.chat_id]['order'].append(exercises)
     bot.sendMessage(update.message.chat_id,
                     text="Superet '%s' started!"
-                         "\nplease provide the number of reps and the load of the exercise as follows:"
-                         "\n (reps x load) \nor use /endset to end the exercise" % exercises)
+                         "\nPlease provide the number of reps and the load of the exercise as follows:"
+                         "\n (reps x load)"
+                         "\nor use /endset to end the exercise." % exercises)
     return IN_SUPERSET
 
 
@@ -198,7 +209,8 @@ def handle_superset(bot, update):
     logger.info("User %s sent '%s'" % (user.first_name, message))
     DATA[update.message.chat_id]['superset'].append((reps, weight))
     bot.sendMessage(update.message.chat_id,
-                    text="reps: %s\nload: %s" % (reps, weight))
+                    text="reps: %s"
+                         "\nload: %s" % (reps, weight))
     return IN_SUPERSET
 
 
@@ -229,12 +241,12 @@ def superset_undo(bot, update):
 
 
 def end_training(bot, update):
-    reply_keyboard = [['yes','no']]
+    reply_keyboard = [['yes', 'no']]
     user = update.message.from_user
     logger.info("User %s ended training" % user.first_name)
     bot.sendMessage(update.message.chat_id,
                     text='ended training!'
-                    'Do you wish to save this training? ( Yes | No )',
+                    '\nDo you wish to save this training? ( Yes | No )',
                     reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
     return SAVE
 
