@@ -17,7 +17,8 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-TOKEN = '215428593:AAGl9krjx_0JxibgpyLzQfBYlgHI3PtAaxg'
+with open("TOKEN.txt") as f:
+    TOKEN = f.read()
 SUPERSET_NAME, IN_TRAINING, DATE, LOCATION, SET_NAME, SAVE, IN_SET, IN_SUPERSET = range(8)
 DATA = OrderedDict()
 
@@ -54,7 +55,8 @@ def error(bot, update, error):
 def start_training(bot, update):
     user = update.message.from_user
     logger.info("User %s started a training session."
-                "\nYou can cancel this at any time using /cancel." % user.first_name)
+                "\nYou can cancel this at any time using /cancel."
+                "\nWhen you're finished, end the training using /endtraining." % user.first_name)
     DATA[update.message.chat_id] = OrderedDict()
     DATA[update.message.chat_id]['id'] = uuid.uuid4().__str__()
     DATA[update.message.chat_id]['name'] = user.first_name + ' ' + user.last_name
@@ -124,7 +126,7 @@ def start_set(bot, update):
                         text="Set '%s' started!"
                              "\nPlease provide the number of reps and the load of the exercise as follows:"
                              "\n (reps x load)"
-                             "\nYou can use /undo to remove the last entry "
+                             "\nYou can use /undo to remove the last entry, "
                              "or use /endset to end the set." % exercise)
         return IN_SET
     else:
@@ -143,7 +145,7 @@ def set_name(bot, update):
                     text="Set '%s' started!"
                          "\nplease provide the number of reps and the load of the exercise as follows:"
                          "\n (reps x load)"
-                         "\nYou can use /undo to remove the last entry "
+                         "\nYou can use /undo to remove the last entry, "
                          "or use /endset to end the set." % exercise)
     return IN_SET
 
@@ -181,7 +183,7 @@ def start_superset(bot, update):
                         text="Superet '%s' started!"
                              "\nPlease provide the number of reps and the load of the exercise as follows:"
                              "\n (reps x load) "
-                             "\nYou can use /undo to remove the last entry "
+                             "\nYou can use /undo to remove the last entry, "
                              "or use /endset to end the set." % exercises)
         return IN_SUPERSET
     else:
@@ -201,7 +203,7 @@ def superset_name(bot, update):
                     text="Superet '%s' started!"
                          "\nPlease provide the number of reps and the load of the exercise as follows:"
                          "\n (reps x load)"
-                         "\nYou can use /undo to remove the last entry "
+                         "\nYou can use /undo to remove the last entry, "
                          "or use /endset to end the current set." % exercises)
     return IN_SUPERSET
 
